@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="conteo" id="conteo-overlay">
+            <span>El juega comienza en <span id="conteo">3</span>!</span>
+        </div>
+        <div class="estadisticas">
+            <p>Jugador 1: <a id="jugador-0">-</a> (ROJO)</p>
+            <p>Jugador 2: <a id="jugador-1">-</a> (VERDE)</p>
+            <p>Jugador 3: <a id="jugador-2">-</a> (AZUL)</p>
+        </div>
+        <div class="cont-medio" id="anotarse">
+            <div>
+                <input type="text" placeholder="Ingresa tu nombre" id="nombreuser"/>
+                <button class="btn-jugar" onclick="unirseJuego()">Jugar</button>
+            </div>
+        </div>
+        <div class="cont-medio" id="chatcontainer">
+            <div id="chat">
+            </div>
+        </div>
+        <div class="contador">
+            Tiempo: <span id="contador">00:12</span>
+        </div>
+        <div class="cancha">
+            <div class="pista">
+                <div class="caballo" id="caballo-0">
+                    <span id="caballo-0-nombre">-</span>
+                    <img src="./imgs/caballo1.png"/>
+                </div>
+            </div>
+
+            <div class="pista">
+                <div class="caballo" id="caballo-1">
+                    <span id="caballo-1-nombre">-</span>
+                    <img src="./imgs/caballo2.png"/>
+                </div>
+            </div>
+            <div class="pista">
+                <div class="caballo" id="caballo-2">
+                    <span id="caballo-2-nombre">-</span>
+                    <img src="./imgs/caballo2.png"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.4/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./script.js"></script>
+</body>
+</html>
