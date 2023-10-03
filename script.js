@@ -1,9 +1,10 @@
-
 let position = 0;
-//const API_URL = `https://getyn.com.ar:2087/`
-const API_URL = `http://localhost:2087/`
+const API_URL = `https://getyn.com.ar:2087/`
+//const API_URL = `http://localhost:2087/`
 
-const socket = io(API_URL, {withCredentials: false,allowEIO3:true})
+let uniendose = false;
+
+const socket = io(API_URL, {withCredentials: false, allowEIO3:true})
 
 let numeroJugador = -1;
 let bloquearJuego = false;
@@ -18,48 +19,41 @@ let infoJuego = {
 }
 
 socket.on('resetcontador', (segundos) => { 
-    const chat = document.querySelector('#chat')
-    chat.innerHTML += `<div>El juego se reinicia en ${segundos} segundo(s)...</div>`;
+    sendChatMessage(`El juego se reinicia en ${segundos} segundo(s)...`);
 })
 
 socket.on('actualizarjuego', (data) => infoJuego = data)
 
 socket.on('contador', (segundos) => {
+    // ACTUALIZA EL TIEMPO DEL JUEGO
     document.querySelector('#contador').innerHTML = segundos;
 })
 
 socket.on('ganador', (data) => {
+    // CUANDO UN JUGADOR LLEGA A LA META
     if(data.user.id == numeroJugador) {
+        if(data.puesto == 1) {
+            document.querySelector('.confetti').style.display = "block";
+            render();
+            initConfetti();
+            setTimeout(() => {
+                document.querySelector('.confetti').style.display = "none";
+            }, 3000)
+        }
         bloquearJuego = true;
     }
-    const chat = document.querySelector('#chat')
-    if(chat) {
-        chat.style.display = "flex"
-        chat.innerHTML += `<div>${data.user.username} consiguió el puesto #${data.puesto} tardando ${data.tiempo}.</div>`;
-    }
+    sendChatMessage(`${data.user.username} consiguió el puesto #${data.puesto} tardando ${data.tiempo}.`)
 })
 
 socket.on('movercaballo', (data) => {
-    const micaballo = document.querySelector('#caballo-'+data.user)
-    micaballo.style.left = `${data.position}%`;
+    // ACTUALIZA LA POSICION DEL CABALLO
+    setPosCaballo(data.user, data.position);
 })
 
 socket.on('resetjuego', (data) => {
     for(let i = 0; i < data.cantidadCaballos; i++) {
-        const spanNombre = document.querySelector('#jugador-'+i);
-        if(spanNombre) {
-            spanNombre.innerHTML = "-";
-        }
-
-        const caballo = document.querySelector('#caballo-'+i)
-        if(caballo) {
-            caballo.style.left = "0%";
-        }
-    
-        const spanCaballo = document.querySelector(`#caballo-${i}-nombre`);
-        if(spanCaballo) {
-            spanCaballo.innerHTML = "-";
-        }       
+        setPosCaballo(i, 0);
+        darNombreCaballo(i, "-");
     }
     bloquearJuego = false;
     document.querySelector('#anotarse').style.display = "flex";
@@ -67,16 +61,9 @@ socket.on('resetjuego', (data) => {
     document.querySelector('#contador').innerHTML = "00:00"
     numeroJugador = -1
 })
-socket.on('jugadoroff', (data) => {
-    const spanNombre = document.querySelector('#jugador-'+data);
-    if(spanNombre) {
-        spanNombre.innerHTML = "-";
-    }
 
-    const spanCaballo = document.querySelector(`#caballo-${data}-nombre`);
-    if(spanCaballo) {
-        spanCaballo.innerHTML = "-";
-    }
+socket.on('jugadoroff', (data) => {
+    darNombreCaballo(data, "-");
 })
 
 socket.on('conteo', (data) => {
@@ -90,16 +77,7 @@ socket.on('conteo', (data) => {
 })
 
 socket.on('nuevojugador', (data) => {
-
-    const spanNombre = document.querySelector('#jugador-'+data.id);
-    if(spanNombre) {
-        spanNombre.innerHTML = data.username;
-    }
-
-    const spanCaballo = document.querySelector(`#caballo-${data.id}-nombre`);
-    if(spanCaballo) {
-        spanCaballo.innerHTML = data.username;
-    }
+    darNombreCaballo(data.id, data.username);
 })
 
 document.addEventListener('keyup', (e) => {
@@ -122,16 +100,7 @@ const obtenerInfo = () => {
         const { code, data } = res.data
         if(code == 1) {
             for(let i = 0; i < data.jugadores.length; i++) {
-                const spanNombre = document.querySelector('#jugador-'+data.jugadores[i].id);
-                if(spanNombre) {
-                    spanNombre.innerHTML = data.jugadores[i].username;
-                }
-            
-                const spanCaballo = document.querySelector(`#caballo-${data.jugadores[i].id}-nombre`);
-                if(spanCaballo) {
-                    spanCaballo.innerHTML = data.jugadores[i].username;
-                }
-
+                darNombreCaballo(data.jugadores[i].id, data.jugadores[i].username);
             }
 
             if(data.empezo == false) {
@@ -148,6 +117,9 @@ const obtenerInfo = () => {
 obtenerInfo();
 
 const unirseJuego = () => {
+    if(uniendose) return;
+    uniendose = true;
+
     const user = document.querySelector('#nombreuser');
     if(!user) return 1;
     const userValue = user.value;
@@ -168,7 +140,41 @@ const unirseJuego = () => {
             numeroJugador = data.id;
             document.querySelector('#anotarse').style.display = "none";
         } else if(code == 2) {
-            alert("Sólo pueden jugar 3 a la vez.")
+            alert("Sólo pueden jugar 3 a la vez.");
+        } else if(code == 3) {
+            alert("Ya hay un jugador con ese nombre.");
         }
+    }).finally(() => {
+        uniendose = false;
     })
+}
+
+
+const darNombreCaballo = (caballo, nombre) => {
+    const spanNombre = document.querySelector(`#jugador-${caballo}`);
+    if(spanNombre) {
+        spanNombre.innerHTML = nombre.length > 1 ? `${nombre} (${caballo + 1})` : nombre;
+    }
+
+    const spanCaballo = document.querySelector(`#caballo-${caballo}-nombre`);
+    if(spanCaballo) {
+        spanCaballo.innerHTML = nombre.length > 1 ? `${nombre} (${caballo + 1})` : nombre;
+    }  
+}
+
+const setPosCaballo = (caballo, pos) => {
+    const micaballo = document.querySelector(`#caballo-${caballo}`)
+    if(micaballo) {
+        micaballo.style.left = `${pos}%`;
+    }
+}
+
+const sendChatMessage = (text) => {
+    const chat = document.querySelector('#chat');
+    if(chat) {
+        chat.style.display = "flex"
+        chat.innerHTML += `<div>${text}</div>`;
+
+        chat.scrollTo(0, chat.scrollHeight);
+    }
 }

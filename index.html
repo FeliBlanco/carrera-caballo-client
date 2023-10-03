@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Turflandia</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <div class="container">
+        <canvas class="confetti" id="canvas"></canvas>
         <div class="conteo" id="conteo-overlay">
             <span>El juega comienza en <span id="conteo">3</span>!</span>
         </div>
         <div class="estadisticas">
-            <p>Jugador 1: <a id="jugador-0">-</a> (ROJO)</p>
-            <p>Jugador 2: <a id="jugador-1">-</a> (VERDE)</p>
-            <p>Jugador 3: <a id="jugador-2">-</a> (AZUL)</p>
+            <p>Jugador 1: <a id="jugador-0">-</a></p>
+            <p>Jugador 2: <a id="jugador-1">-</a></p>
+            <p>Jugador 3: <a id="jugador-2">-</a></p>
         </div>
         <div class="cont-medio" id="anotarse">
             <div>
@@ -27,7 +28,7 @@
             </div>
         </div>
         <div class="contador">
-            Tiempo: <span id="contador">00:12</span>
+            Tiempo: <span id="contador">00:00</span>
         </div>
         <div class="cancha">
             <div class="pista">
@@ -51,6 +52,7 @@
             </div>
         </div>
     </div>
+    <script src="./confetti.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.4/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./script.js"></script>
