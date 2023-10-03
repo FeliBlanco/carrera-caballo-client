@@ -17,6 +17,11 @@ let infoJuego = {
     puedenmover: false
 }
 
+socket.on('resetcontador', (segundos) => { 
+    const chat = document.querySelector('#chat')
+    chat.innerHTML += `<div>El juego se reinicia en ${segundos} segundo(s)...</div>`;
+})
+
 socket.on('actualizarjuego', (data) => infoJuego = data)
 
 socket.on('contador', (segundos) => {
@@ -30,12 +35,11 @@ socket.on('ganador', (data) => {
     const chat = document.querySelector('#chat')
     if(chat) {
         chat.style.display = "flex"
-        chat.innerHTML += `<div>${data.user.username} consiguió el puesto #${data.puesto} tardando 3s.</div>`;
+        chat.innerHTML += `<div>${data.user.username} consiguió el puesto #${data.puesto} tardando ${data.tiempo}.</div>`;
     }
 })
 
 socket.on('movercaballo', (data) => {
-    console.log("mover caballo")
     const micaballo = document.querySelector('#caballo-'+data.user)
     micaballo.style.left = `${data.position}%`;
 })
@@ -60,6 +64,8 @@ socket.on('resetjuego', (data) => {
     bloquearJuego = false;
     document.querySelector('#anotarse').style.display = "flex";
     infoJuego = data
+    document.querySelector('#contador').innerHTML = "00:00"
+    numeroJugador = -1
 })
 socket.on('jugadoroff', (data) => {
     const spanNombre = document.querySelector('#jugador-'+data);
@@ -94,20 +100,15 @@ socket.on('nuevojugador', (data) => {
     if(spanCaballo) {
         spanCaballo.innerHTML = data.username;
     }
-    console.log(data)
 })
 
 document.addEventListener('keyup', (e) => {
     if(e.which == 39) {
         if(numeroJugador != -1 && bloquearJuego == false && infoJuego.puedenmover == true) {
-            console.log("JUGADORNUMERO")
-            console.log(numeroJugador)
             position += Math.random();
             socket.emit('movercaballo-client', {position, user: numeroJugador})
             /*const micaballo = document.querySelector('#caballo-'+numeroJugador)
             micaballo.style.left = `${position}%`;*/
-        } else {
-            console.log("no podes moverr")
         }
     }
 })
@@ -120,8 +121,6 @@ const obtenerInfo = () => {
     }).then(res => {
         const { code, data } = res.data
         if(code == 1) {
-            
-            console.log(data)
             for(let i = 0; i < data.jugadores.length; i++) {
                 const spanNombre = document.querySelector('#jugador-'+data.jugadores[i].id);
                 if(spanNombre) {
@@ -139,8 +138,6 @@ const obtenerInfo = () => {
                 document.querySelector('#anotarse').style.display = "flex";
             }
             infoJuego = data
-        } else {
-            console.log("OTRO CODIGO")
         }
     }).catch(err => {
         console.log("error")
@@ -168,7 +165,6 @@ const unirseJuego = () => {
         const { code, data } = res.data
 
         if(code == 1) {
-            console.log(data)
             numeroJugador = data.id;
             document.querySelector('#anotarse').style.display = "none";
         } else if(code == 2) {

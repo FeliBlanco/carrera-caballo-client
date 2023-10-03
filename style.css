@@ -24,6 +24,11 @@
     position: relative;
 }
 
+@media screen and (max-width:1600px) {
+    .pista {
+        height:150px !important;
+    }
+}
 .caballo {
     width:120px;
     height:120px;
@@ -50,7 +55,6 @@
 }
 
 .cont-medio {
-    position: absolute;
     width:100%;
     top:10px;
     display:flex;
