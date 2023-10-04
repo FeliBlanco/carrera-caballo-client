@@ -39,6 +39,7 @@ socket.on('ganador', (data) => {
             setTimeout(() => {
                 document.querySelector('.confetti').style.display = "none";
             }, 3000)
+            document.querySelector('#s-festejo').play()
         }
         bloquearJuego = true;
     }
@@ -73,6 +74,7 @@ socket.on('conteo', (data) => {
         document.querySelector('#anotarse').style.display = "none";
     } else {
         conteoOverlay.style.display = "none";
+        document.querySelector('#s-trompeta').play()
     }
 })
 
